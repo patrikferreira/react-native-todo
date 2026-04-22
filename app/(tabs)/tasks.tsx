@@ -7,7 +7,8 @@ import {
   TextInput,
   View,
 } from "react-native";
-import AppContext from "./AppContext";
+import AppContext from "../AppContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Tasks() {
   const context = useContext(AppContext);
@@ -16,7 +17,9 @@ export default function Tasks() {
   const [input, setInput] = useState("");
 
   const toggle = (id: number) => {
-    const updated = tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, done: !t.done } : t
+    );
     setTasks(updated);
   };
 
@@ -32,7 +35,7 @@ export default function Tasks() {
   };
 
   return (
-    <View style={styles.safe}>
+    <SafeAreaView style={styles.safe}>
       <View>
         <Text style={styles.title}>Tasks</Text>
         <Text style={styles.subtitle}>Organize your day</Text>
@@ -99,14 +102,14 @@ export default function Tasks() {
           </Pressable>
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    padding: 20,
+    padding: 30,
     backgroundColor: "#F5F6F8",
   },
   title: {
@@ -155,15 +158,12 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     lineHeight: 28,
   },
-
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 16,
     gap: 8,
   },
-
   emptyState: {
     alignItems: "center",
     marginTop: 48,
@@ -172,7 +172,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#9BA1AD",
   },
-
   taskRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -190,7 +189,6 @@ const styles = StyleSheet.create({
   taskRowPressed: {
     opacity: 0.6,
   },
-
   checkbox: {
     width: 20,
     height: 20,
@@ -209,7 +207,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     lineHeight: 14,
   },
-
   taskText: {
     flex: 1,
     fontSize: 14,
@@ -221,7 +218,6 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     color: "#9BA1AD",
   },
-
   deleteBtn: {
     paddingHorizontal: 4,
   },
