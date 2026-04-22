@@ -1,7 +1,7 @@
-import { Link } from "expo-router";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import AppContext from "./AppContext";
+import AppContext from "../AppContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
   const context = useContext(AppContext);
@@ -10,65 +10,66 @@ export default function Home() {
   const total = tasks.length;
   const done = tasks.filter((t) => t.done).length;
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-  const recent = [...tasks].reverse().slice(0, 5);
+  const recent = [...tasks].slice(0, 5);
 
   return (
-    <ScrollView
-      style={styles.safe}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>Hello 👋</Text>
-        <Text style={styles.subtitle}>See how your day is going</Text>
-      </View>
-
-      <View style={styles.statsRow}>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>Total</Text>
-          <Text style={styles.statValue}>{total}</Text>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView
+        style={styles.safe}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Hello 👋</Text>
+          <Text style={styles.subtitle}>See how your day is going</Text>
         </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>Done</Text>
-          <Text style={styles.statValue}>{done}</Text>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Total</Text>
+            <Text style={styles.statValue}>{total}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Done</Text>
+            <Text style={styles.statValue}>{done}</Text>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.progressSection}>
-        <View style={styles.progressHeader}>
-          <Text style={styles.progressLabel}>Progress</Text>
-          <Text style={styles.progressLabel}>{pct}%</Text>
+        <View style={styles.progressSection}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressLabel}>Progress</Text>
+            <Text style={styles.progressLabel}>{pct}%</Text>
+          </View>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${pct}%` }]} />
+          </View>
         </View>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${pct}%` }]} />
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionLabel}>Recent tasks</Text>
         </View>
-      </View>
 
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionLabel}>Recent tasks</Text>
-      </View>
-
-      <View style={styles.recentList}>
-        {recent.length === 0 ? (
-          <Text style={styles.emptyText}>No tasks yet</Text>
-        ) : (
-          recent.map((task) => (
-            <View key={task.id} style={styles.recentItem}>
-              <View style={[styles.dot, task.done && styles.dotDone]} />
-              <Text
-                style={[styles.recentText, task.done && styles.recentTextDone]}
-              >
-                {task.text}
-              </Text>
-            </View>
-          ))
-        )}
-      </View>
-
-      <Link href="/tasks" style={styles.ctaBtn}>
-        <Text style={styles.ctaBtnText}>Tasks</Text>
-      </Link>
-    </ScrollView>
+        <View style={styles.recentList}>
+          {recent.length === 0 ? (
+            <Text style={styles.emptyText}>No tasks yet</Text>
+          ) : (
+            recent.map((task) => (
+              <View key={task.id} style={styles.recentItem}>
+                <View style={[styles.dot, task.done && styles.dotDone]} />
+                <Text
+                  style={[
+                    styles.recentText,
+                    task.done && styles.recentTextDone,
+                  ]}
+                >
+                  {task.text}
+                </Text>
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -78,10 +79,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F6F8",
   },
   content: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 30,
   },
-
   header: {
     marginBottom: 22,
   },
@@ -96,7 +95,6 @@ const styles = StyleSheet.create({
     color: "#878C96",
     marginTop: 2,
   },
-
   statsRow: {
     flexDirection: "row",
     gap: 10,
@@ -121,7 +119,6 @@ const styles = StyleSheet.create({
     color: "#141518",
     letterSpacing: -0.5,
   },
-
   progressSection: {
     marginBottom: 24,
   },
@@ -145,7 +142,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#DB4035",
     borderRadius: 99,
   },
-
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -162,7 +158,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#878C96",
   },
-
   recentList: {
     gap: 6,
     marginBottom: 28,
@@ -200,8 +195,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#9BA1AD",
     paddingVertical: 8,
+    textAlign: "center",
   },
-
   ctaBtn: {
     backgroundColor: "#DB4035",
     borderRadius: 10,
