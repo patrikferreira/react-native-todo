@@ -7,8 +7,9 @@ import {
   TextInput,
   View,
 } from "react-native";
-import AppContext from "../AppContext";
+import AppContext from "../../AppContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
 export default function Tasks() {
   const context = useContext(AppContext);
@@ -16,23 +17,23 @@ export default function Tasks() {
 
   const [input, setInput] = useState("");
 
-  const toggle = (id: number) => {
+  function toggle(id: number) {
     const updated = tasks.map((t) =>
       t.id === id ? { ...t, done: !t.done } : t
     );
     setTasks(updated);
   };
 
-  const addTask = () => {
+  function addTask() {
     const text = input.trim();
     if (!text) return;
     setTasks([{ id: Date.now(), text, done: false }, ...tasks]);
     setInput("");
   };
 
-  const removeTask = (id: number) => {
+  function removeTask(id: number) {
     setTasks(tasks.filter((t) => t.id !== id));
-  };
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -50,6 +51,7 @@ export default function Tasks() {
           onChangeText={setInput}
           onSubmitEditing={addTask}
           returnKeyType="done"
+          maxLength={50}
         />
         <Pressable
           onPress={addTask}
@@ -77,7 +79,9 @@ export default function Tasks() {
           <Pressable
             key={task.id}
             onPress={() => toggle(task.id)}
-            onLongPress={() => removeTask(task.id)}
+            onLongPress={() => {
+              router.push(`/tasks/${task.id}`);
+            }}
             style={({ pressed }) => [
               styles.taskRow,
               task.done && styles.taskRowDone,

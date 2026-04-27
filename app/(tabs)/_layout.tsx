@@ -29,7 +29,7 @@ export default function TabsLayout() {
               color={color}
             />
           ),
-          tabBarActiveTintColor: "#1A1A18",
+          tabBarActiveTintColor: "#DB4035",
           tabBarInactiveTintColor: "#B0ADA8",
           tabBarStyle: {
             paddingTop: 12,
