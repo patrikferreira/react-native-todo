@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import AppContext from "../../AppContext";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import Task from "@/components/Task";
 
 export default function Tasks() {
   const context = useContext(AppContext);
@@ -22,14 +22,14 @@ export default function Tasks() {
       t.id === id ? { ...t, done: !t.done } : t
     );
     setTasks(updated);
-  };
+  }
 
   function addTask() {
     const text = input.trim();
     if (!text) return;
     setTasks([{ id: Date.now(), text, done: false }, ...tasks]);
     setInput("");
-  };
+  }
 
   function removeTask(id: number) {
     setTasks(tasks.filter((t) => t.id !== id));
@@ -76,34 +76,12 @@ export default function Tasks() {
         )}
 
         {tasks.map((task) => (
-          <Pressable
+          <Task
             key={task.id}
-            onPress={() => toggle(task.id)}
-            onLongPress={() => {
-              router.push(`/tasks/${task.id}`);
-            }}
-            style={({ pressed }) => [
-              styles.taskRow,
-              task.done && styles.taskRowDone,
-              pressed && styles.taskRowPressed,
-            ]}
-          >
-            <View style={[styles.checkbox, task.done && styles.checkboxDone]}>
-              {task.done && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-
-            <Text style={[styles.taskText, task.done && styles.taskTextDone]}>
-              {task.text}
-            </Text>
-
-            <Pressable
-              onPress={() => removeTask(task.id)}
-              hitSlop={8}
-              style={styles.deleteBtn}
-            >
-              <Text style={styles.deleteText}>×</Text>
-            </Pressable>
-          </Pressable>
+            {...task}
+            toggleTask={toggle}
+            deleteTask={removeTask}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -175,59 +153,5 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: "#9BA1AD",
-  },
-  taskRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 11,
-    paddingHorizontal: 14,
-    backgroundColor: "#ECEEF2",
-    borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#E0E3E9",
-  },
-  taskRowDone: {
-    opacity: 0.45,
-  },
-  taskRowPressed: {
-    opacity: 0.6,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: "#BCC1CB",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkboxDone: {
-    backgroundColor: "#DB4035",
-    borderColor: "#DB4035",
-  },
-  checkmark: {
-    fontSize: 11,
-    color: "#FFFFFF",
-    lineHeight: 14,
-  },
-  taskText: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#141518",
-    letterSpacing: -0.1,
-  },
-  taskTextDone: {
-    textDecorationLine: "line-through",
-    color: "#9BA1AD",
-  },
-  deleteBtn: {
-    paddingHorizontal: 4,
-  },
-  deleteText: {
-    fontSize: 18,
-    color: "#BCC1CB",
-    lineHeight: 20,
   },
 });
