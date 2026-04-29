@@ -10,6 +10,7 @@ import {
 import AppContext from "../../AppContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Task from "@/components/Task";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function Tasks() {
   const context = useContext(AppContext);
@@ -27,6 +28,10 @@ export default function Tasks() {
   function addTask() {
     const text = input.trim();
     if (!text) return;
+    if (tasks.length >= 21) {
+      alert("Task limit reached");
+      return;
+    }
     setTasks([{ id: Date.now(), text, done: false }, ...tasks]);
     setInput("");
   }
@@ -36,55 +41,57 @@ export default function Tasks() {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View>
-        <Text style={styles.title}>Tasks</Text>
-        <Text style={styles.subtitle}>Organize your day</Text>
-      </View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={styles.safe}>
+        <View>
+          <Text style={styles.title}>Tasks</Text>
+          <Text style={styles.subtitle}>Organize your day</Text>
+        </View>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="New task"
-          placeholderTextColor="#878C96"
-          value={input}
-          onChangeText={setInput}
-          onSubmitEditing={addTask}
-          returnKeyType="done"
-          maxLength={50}
-        />
-        <Pressable
-          onPress={addTask}
-          style={({ pressed }) => [
-            styles.addBtn,
-            pressed && styles.addBtnPressed,
-          ]}
-        >
-          <Text style={styles.addBtnText}>+</Text>
-        </Pressable>
-      </View>
-
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {tasks.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No tasks yet</Text>
-          </View>
-        )}
-
-        {tasks.map((task) => (
-          <Task
-            key={task.id}
-            {...task}
-            toggleTask={toggle}
-            deleteTask={removeTask}
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="New task"
+            placeholderTextColor="#878C96"
+            value={input}
+            onChangeText={setInput}
+            onSubmitEditing={addTask}
+            returnKeyType="done"
+            maxLength={50}
           />
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+          <Pressable
+            onPress={addTask}
+            style={({ pressed }) => [
+              styles.addBtn,
+              pressed && styles.addBtnPressed,
+            ]}
+          >
+            <Text style={styles.addBtnText}>+</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {tasks.length === 0 && (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>No tasks yet</Text>
+            </View>
+          )}
+
+          {tasks.map((task) => (
+            <Task
+              key={task.id}
+              {...task}
+              toggleTask={toggle}
+              deleteTask={removeTask}
+            />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 

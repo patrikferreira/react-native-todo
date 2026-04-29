@@ -1,5 +1,18 @@
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+  interpolateColor,
+} from "react-native-reanimated";
+
+const REVEAL_WIDTH = 44;
+const DELETE_THRESHOLD = -(REVEAL_WIDTH * 0.5);
 
 type Props = {
   id: number;
@@ -17,40 +30,108 @@ export default function Task({
   deleteTask,
 }: Props) {
   const router = useRouter();
+  const translateX = useSharedValue(0);
+
+  const panGesture = Gesture.Pan()
+    .activeOffsetX([-8, 8])
+    .failOffsetY([-8, 8])
+    .onUpdate((e) => {
+      translateX.value = Math.min(0, Math.max(e.translationX, -REVEAL_WIDTH * 1.2));
+    })
+    .onEnd((e) => {
+      if (e.translationX < DELETE_THRESHOLD) {
+        translateX.value = withTiming(-500, { duration: 250 }, () => {
+          runOnJS(deleteTask)(id);
+        });
+      } else {
+        translateX.value = withSpring(0, { damping: 18, stiffness: 200 });
+      }
+    });
+
+  const rowAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  const trashBgStyle = useAnimatedStyle(() => {
+    const progress = Math.min(1, Math.abs(translateX.value) / REVEAL_WIDTH);
+    return {
+      backgroundColor: interpolateColor(
+        progress,
+        [0, 0.5, 1],
+        ["#f5cece", "#f08080", "#DB4035"]
+      ),
+      opacity: progress,
+    };
+  });
+
+  const trashIconStyle = useAnimatedStyle(() => {
+    const progress = Math.min(1, Math.abs(translateX.value) / REVEAL_WIDTH);
+    return {
+      transform: [{ scale: 0.5 + 0.5 * progress }],
+      opacity: progress,
+    };
+  });
 
   return (
-    <Pressable
-      key={id}
-      onPress={() => {
-        toggleTask(id);
-      }}
-      onLongPress={() => {
-        router.push(`/tasks/${id}`);
-      }}
-      style={({ pressed }) => [
-        styles.taskRow,
-        done && styles.taskRowDone,
-        pressed && styles.taskRowPressed,
-      ]}
-    >
-      <View style={[styles.checkbox, done && styles.checkboxDone]}>
-        {done && <Text style={styles.checkmark}>✓</Text>}
-      </View>
+    <View style={styles.wrapper}>
+      <Animated.View style={[styles.trashContainer, trashBgStyle]}>
+        <Animated.View style={trashIconStyle}>
+          <Feather name="trash-2" size={18} color="#fff" />
+        </Animated.View>
+      </Animated.View>
 
-      <Text style={[styles.taskText, done && styles.taskTextDone]}>{text}</Text>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={rowAnimStyle}>
+          <Pressable
+            onPress={() => toggleTask(id)}
+            onLongPress={() => router.push(`/tasks/${id}`)}
+            style={({ pressed }) => [
+              styles.taskRow,
+              done && styles.taskRowDone,
+              pressed && styles.taskRowPressed,
+            ]}
+          >
+            <View style={[styles.checkbox, done && styles.checkboxDone]}>
+              {done && <Text style={styles.checkmark}>✓</Text>}
+            </View>
 
-      <Pressable
-        onPress={() => deleteTask(id)}
-        hitSlop={8}
-        style={styles.deleteBtn}
-      >
-        <Text style={styles.deleteText}>×</Text>
-      </Pressable>
-    </Pressable>
+            <Text
+              style={[styles.taskText, done && styles.taskTextDone]}
+              numberOfLines={1}
+            >
+              {text}
+            </Text>
+
+            <Pressable
+              onPress={() => router.push(`/tasks/${id}`)}
+              hitSlop={8}
+              style={styles.editBtn}
+            >
+              <Feather name="edit-2" size={14} color="#BCC1CB" />
+            </Pressable>
+          </Pressable>
+        </Animated.View>
+      </GestureDetector>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    position: "relative",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  trashContainer: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: REVEAL_WIDTH,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+  },
   taskRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -97,12 +178,7 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     color: "#9BA1AD",
   },
-  deleteBtn: {
+  editBtn: {
     paddingHorizontal: 4,
-  },
-  deleteText: {
-    fontSize: 18,
-    color: "#BCC1CB",
-    lineHeight: 20,
   },
 });
